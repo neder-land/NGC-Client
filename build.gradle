@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'com.github.neder_land'
+version '0.1'
+
+sourceCompatibility = 1.8
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://maven.aliyun.com/repository/google/' }
+    maven { url 'https://maven.aliyun.com/repository/jcenter/' }
+    maven { url 'https://maven.aliyun.com/repository/central/' }
+    maven { url 'http://home.sebrarin.tk:8088/maven/' }
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.8.6'
+    compile 'io.netty:netty-all:4.1.45.Final'
+    compile 'com.google.guava:guava:28.2-jre'
+    compile 'com.github.neder-land:JWW:1.1.2-SNAPSHOT'
+    compile 'com.github.neder-land:nederlib:0.1.0'
+}
