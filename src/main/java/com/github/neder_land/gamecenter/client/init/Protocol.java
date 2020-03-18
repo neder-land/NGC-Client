@@ -1,7 +1,7 @@
 package com.github.neder_land.gamecenter.client.init;
 
 public enum Protocol {
-    v1(1);
+    legacy(0), v1(1);
 
     Protocol(int versionIn) {
         version = versionIn;
@@ -11,5 +11,9 @@ public enum Protocol {
 
     public int getVersion() {
         return version;
+    }
+
+    public static boolean isSupported(int version) {
+        return version == v1.version;
     }
 }

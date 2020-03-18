@@ -1,13 +1,17 @@
 package com.github.neder_land.gamecenter.client.api.mod;
 
+import neder_land.lib.Version;
+
+import java.util.Map;
+
 public interface IModInfo extends Comparable<IModInfo> {
     String modid();
 
-    String version();
+    Version version();
 
     String name();
 
-    String[] dependencies();
+    Map<String, Version> dependencies();
 
     String mainClass();
 

@@ -1,9 +1,8 @@
 package com.github.neder_land.gamecenter.client.network;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.github.neder_land.gamecenter.client.init.Protocol;
+import com.github.neder_land.jww.packet.Handshake;
+import com.github.neder_land.jww.packet.Packet;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
@@ -62,10 +61,9 @@ public class ConnectionHandler extends SimpleChannelInboundHandler {
      * @param ctx the {@link ChannelHandlerContext} which this {@link SimpleChannelInboundHandler}
      *            belongs to
      * @param msg the message to handle
-     * @throws Exception is thrown if an error occurred
      */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
         System.out.println("channelRead0");
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
@@ -89,17 +87,15 @@ public class ConnectionHandler extends SimpleChannelInboundHandler {
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             if (!handshaked) {
-                JsonElement je = JsonParser.parseString(((TextWebSocketFrame) msg).text());
-                if (!je.isJsonObject()) ctx.writeAndFlush(new CloseWebSocketFrame());
-                JsonObject jo = new JsonObject();
-                if (!jo.has("version")) ctx.writeAndFlush(new CloseWebSocketFrame());
-                JsonElement ver = jo.get("version");
-                if (!ver.isJsonPrimitive()) ctx.writeAndFlush(new CloseWebSocketFrame());
-                JsonPrimitive primitive = ver.getAsJsonPrimitive();
-                if (!primitive.isNumber()) ctx.writeAndFlush(new CloseWebSocketFrame());
-                int version = primitive.getAsInt();
-
-            }
+                try {
+                    Handshake hs = Packet.deserializeHandshake(((TextWebSocketFrame) msg).text());
+                    int version = hs.getVersion();
+                    if (!Protocol.isSupported(version))
+                        ctx.writeAndFlush(new CloseWebSocketFrame()).addListener(ChannelFutureListener.CLOSE);
+                } catch (Exception ignored) {
+                    ctx.writeAndFlush(new CloseWebSocketFrame()).addListener(ChannelFutureListener.CLOSE);
+                }
+            } else ctx.fireChannelRead(frame);
         } else if (frame instanceof PongWebSocketFrame) {
             System.out.println("WebSocket Client received pong");
         } else if (frame instanceof CloseWebSocketFrame) {

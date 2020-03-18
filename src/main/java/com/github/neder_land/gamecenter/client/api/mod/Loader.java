@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface Loader<T extends IModInfo> {
-    void detect(Client client) throws IOException;
+    List<T> detect(Client client) throws IOException;
 
     void verifyModCompatibility(List<T> list);
 

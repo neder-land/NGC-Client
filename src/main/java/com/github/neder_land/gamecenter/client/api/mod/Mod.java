@@ -20,19 +20,20 @@ public @interface Mod {
     String[] dependencies() default {};
 
     /**
-     * Annotate on a public method to mark as initializer.
+     * Annotate on a public method to mark as a handler handling event its argument refers to
      * Must be in @Mod.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
-    @interface InitializerMethod {
+    @interface EventHandler {
     }
 
     /**
-     * Annotate on a public method to mark as a handler handling event its argument refers to
+     * Annotate on a field(Suggest you use private field) to mark it as your mod's instance.
+     * Must be in @Mod
      */
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    @interface EventHandler {
+    @Target(ElementType.FIELD)
+    @interface Instance {
     }
 }

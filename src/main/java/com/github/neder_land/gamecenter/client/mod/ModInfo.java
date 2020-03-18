@@ -2,28 +2,31 @@ package com.github.neder_land.gamecenter.client.mod;
 
 import com.github.neder_land.gamecenter.client.api.mod.IModInfo;
 import com.google.gson.annotations.Expose;
+import neder_land.lib.Version;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
 @ParametersAreNonnullByDefault
 public class ModInfo implements IModInfo {
-    public static final ModInfo INVALID = new ModInfo("INVALID", "INVALID", "INVALID", new String[]{}, "INVALID");
-    public final String modid;
-    public final String version;
-    public final String name;
-    public final String[] dependencies;
+    public static final ModInfo INVALID = new ModInfo("INVALID", "INVALID", "INVALID", Collections.emptyMap(), "INVALID");
+    private final String modid;
+    private final Version version;
+    private final String name;
+    private final Map<String, Version> dependencies;
     private final String mainClass;
     @Expose(serialize = false, deserialize = false)
     private JarFile jar = null;
-    @Expose
+    @Expose(serialize = false, deserialize = false)
     private URL location = null;
 
-    public ModInfo(String modid, String version, String name, String[] dependencies, String mainClass) {
+    public ModInfo(String modid, String version, String name, Map<String, Version> dependencies, String mainClass) {
         this.modid = modid;
-        this.version = version;
+        this.version = Version.parse(version).orElseThrow(() -> new LoaderException("Not a valid version"));
         this.name = name;
         this.dependencies = dependencies;
         this.mainClass = mainClass;
@@ -31,9 +34,8 @@ public class ModInfo implements IModInfo {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (String mi : dependencies) {
-            sb.append(mi);
-            sb.append(',');
+        for (Map.Entry<String, Version> entry : dependencies.entrySet()) {
+            sb.append(entry.getKey()).append('@').append(entry.getValue()).append(',');
         }
         sb.trimToSize();
         return String.format("Mod[modid=%s,version=%s,name=%s,dependencies={%s}", modid, version, name, sb.substring(0, sb.lastIndexOf(",")));
@@ -45,7 +47,7 @@ public class ModInfo implements IModInfo {
     }
 
     @Override
-    public String version() {
+    public Version version() {
         return version;
     }
 
@@ -55,7 +57,7 @@ public class ModInfo implements IModInfo {
     }
 
     @Override
-    public String[] dependencies() {
+    public Map<String, Version> dependencies() {
         return dependencies;
     }
 
@@ -127,12 +129,11 @@ public class ModInfo implements IModInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ModInfo modInfo = (ModInfo) o;
-        return modid.equals(modInfo.modid) &&
-                version.equals(modInfo.version);
+        return modid.equals(modInfo.modid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(modid, version);
+        return Objects.hash(modid);
     }
 }
